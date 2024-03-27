@@ -72,6 +72,7 @@ function createAxios<Data = any, T = ApiPromise<Data>>(axiosConfig: AxiosRequest
             showCodeMessage: true, // 是否开启code不为1时的信息提示, 默认为true
             showSuccessMessage: false, // 是否开启code为1时的信息提示, 默认为false
             anotherToken: '', // 当前请求使用另外的用户token
+            fileName: '请设置文件名', // 如果响应类型为blob时有用
         },
         options
     )
@@ -239,7 +240,15 @@ function createAxios<Data = any, T = ApiPromise<Data>>(axiosConfig: AxiosRequest
                         type: 'success',
                     })
                 }
+            } else if (response.config.responseType == 'blob') {
+                const blob = new Blob([response.data])
+                const link = document.createElement('a')
+                link.href = URL.createObjectURL(blob)
+                link.download = options.fileName!
+                link.click()
+                URL.revokeObjectURL(link.href)
             }
+
 
             return options.reductDataFormat ? response.data : response
         },
@@ -408,6 +417,8 @@ interface Options {
     showSuccessMessage?: boolean
     // 当前请求使用另外的用户token
     anotherToken?: string
+    // 下载文件名, 如果响应类型为blob时有用
+    fileName?: string
 }
 
 /*
